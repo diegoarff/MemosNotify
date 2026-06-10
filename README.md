@@ -154,13 +154,14 @@ sections:
 
 ### `schedule`
 
-| Key             | Default        | Notes                                                                                           |
-| --------------- | -------------- | ----------------------------------------------------------------------------------------------- |
-| `checkInterval` | `*/15 * * * *` | Cron expression for the due-check loop.                                                         |
-| `timezone`      | `UTC`          | IANA tz for digest, `snooze_until`, absolute dates & quiet hours.                               |
-| `renudge`       | `off`          | Nag interval for untouched one-shots; `off` = single shot.                                      |
-| `digest`        | disabled       | `{ enabled, at: "08:00" }` — batch due reminders once/day.                                      |
-| `quietHours`    | —              | `{ enabled, from, to, timezone? }` — defer delivery (`timezone` overrides `schedule.timezone`). |
+| Key                  | Default        | Notes                                                                                                                        |
+| -------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `checkInterval`      | `*/15 * * * *` | Cron expression for the due-check loop.                                                                                      |
+| `timezone`           | `UTC`          | IANA tz for digest, `snooze_until`, absolute dates & quiet hours.                                                            |
+| `renudge`            | `off`          | Nag interval for untouched one-shots; `off` = single shot.                                                                   |
+| `deleteHandledAfter` | `off`          | Erase a handled message this long after you act on it; **max 24h** (best-effort — Telegram caps deletion at 48h after send). |
+| `digest`             | disabled       | `{ enabled, at: "08:00" }` — batch due reminders once/day.                                                                   |
+| `quietHours`         | —              | `{ enabled, from, to, timezone? }` — defer delivery (`timezone` overrides `schedule.timezone`).                              |
 
 ### `actions`
 

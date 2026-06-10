@@ -34,7 +34,22 @@ export function startScheduler(config: Config, storage: Storage, notifier: Notif
     }
   }
 
+  // Delete handled messages whose retention window has elapsed. Runs before the quiet-hours guard
+  // (deleting is silent) and is isolated from delivery so a failing sweep never blocks reminders.
+  async function sweepDeletions(now: number): Promise<void> {
+    if (sched.deleteHandledAfter === "off" || !notifier.deleteMessage) return;
+    const del = notifier.deleteMessage.bind(notifier);
+    for (const d of await storage.dueDeletions(now)) {
+      // Telegram refuses messages > 48h old; drop the row regardless so we never loop on a stuck one.
+      await del(d.chatTarget, d.messageId).catch((err: unknown) =>
+        console.error(`delete message ${d.messageId} failed:`, err),
+      );
+      await storage.removeDeletion(d.id);
+    }
+  }
+
   async function tick(now: number): Promise<void> {
+    await sweepDeletions(now).catch((err: unknown) => console.error("deletion sweep failed:", err));
     if (qh?.enabled && isWithinQuietHours(now, qh)) return; // defer the whole tick during quiet hours
 
     const digest = sched.digest;

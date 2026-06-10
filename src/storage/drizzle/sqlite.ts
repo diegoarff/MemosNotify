@@ -2,8 +2,8 @@ import { createClient, type Client } from "@libsql/client";
 import { and, eq, lte } from "drizzle-orm";
 import { drizzle, type LibSQLDatabase } from "drizzle-orm/libsql";
 import { migrate } from "drizzle-orm/libsql/migrator";
-import type { Reminder, ReminderStatus, Storage } from "../interface.ts";
-import { meta, reminders } from "./schema.ts";
+import type { PendingDeletion, Reminder, ReminderStatus, Storage } from "../interface.ts";
+import { meta, pendingDeletions, reminders } from "./schema.ts";
 
 export class SqliteStorage implements Storage {
   private readonly client: Client;
@@ -72,6 +72,25 @@ export class SqliteStorage implements Storage {
 
   async setStatus(id: number, status: ReminderStatus): Promise<void> {
     await this.db.update(reminders).set({ status }).where(eq(reminders.id, id));
+  }
+
+  async enqueueDeletion(chatTarget: string, messageId: number, deleteAfter: number): Promise<void> {
+    await this.db.insert(pendingDeletions).values({ chatTarget, messageId, deleteAfter });
+  }
+
+  async dueDeletions(now: number): Promise<PendingDeletion[]> {
+    return this.db
+      .select({
+        id: pendingDeletions.id,
+        chatTarget: pendingDeletions.chatTarget,
+        messageId: pendingDeletions.messageId,
+      })
+      .from(pendingDeletions)
+      .where(lte(pendingDeletions.deleteAfter, now));
+  }
+
+  async removeDeletion(id: number): Promise<void> {
+    await this.db.delete(pendingDeletions).where(eq(pendingDeletions.id, id));
   }
 
   async getMeta(key: string): Promise<string | undefined> {

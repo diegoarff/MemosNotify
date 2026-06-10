@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const reminders = sqliteTable(
   "reminders",
@@ -33,3 +33,17 @@ export const meta = sqliteTable("meta", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
 });
+
+// Handled chat messages queued for deletion. Decoupled from `reminders`: one reminder can produce
+// many messages over its life (recurrence, re-nudge, post-snooze), and each is deleted on its own
+// clock once acted on. The scheduler sweeps rows whose `delete_after` has passed.
+export const pendingDeletions = sqliteTable(
+  "pending_deletions",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    chatTarget: text("chat_target").notNull(),
+    messageId: integer("message_id").notNull(),
+    deleteAfter: integer("delete_after").notNull(),
+  },
+  (t) => [index("pending_deletions_delete_after").on(t.deleteAfter)],
+);

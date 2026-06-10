@@ -1,5 +1,6 @@
 import { loadConfig } from "./config/load.ts";
 import { executeAction } from "./core/actions.ts";
+import { addDuration } from "./core/duration.ts";
 import { buildReminderView, evaluateTriggers } from "./core/reminders.ts";
 import { MemosClient } from "./memos/client.ts";
 import { TelegramNotifier } from "./notifiers/telegram.ts";
@@ -57,9 +58,20 @@ async function main(): Promise<void> {
       ),
   });
 
+  const deleteHandledAfter = config.schedule.deleteHandledAfter;
   await notifier.start({
     onAction: (reminderId, actionId) =>
       executeAction({ storage, actions: config.actions, timezone, memos }, reminderId, actionId),
+    // Queue the handled message for deletion; the scheduler sweeps it once the window elapses.
+    // Conditional spread (not `onHandled: undefined`) to satisfy exactOptionalPropertyTypes.
+    ...(deleteHandledAfter === "off"
+      ? {}
+      : {
+          onHandled: async (target: string, messageId: number) => {
+            const at = addDuration(new Date(), deleteHandledAfter).getTime();
+            await storage.enqueueDeletion(target, messageId, at);
+          },
+        }),
   });
 
   const app = createServer({

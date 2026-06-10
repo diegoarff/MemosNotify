@@ -64,6 +64,27 @@ describe("SqliteStorage (in-memory libSQL)", () => {
     expect(id3).not.toBe(id1);
   });
 
+  it("queues, returns, and clears pending message deletions by their due time", async () => {
+    const s = new SqliteStorage(":memory:");
+    await s.init();
+
+    expect(await s.dueDeletions(Number.MAX_SAFE_INTEGER)).toHaveLength(0);
+
+    await s.enqueueDeletion("chat-a", 10, 5_000);
+    await s.enqueueDeletion("chat-a", 11, 9_000);
+
+    // dueDeletions is inclusive of `now` and excludes the not-yet-due
+    expect(await s.dueDeletions(4_999)).toHaveLength(0);
+    const dueAt5k = await s.dueDeletions(5_000);
+    expect(dueAt5k).toHaveLength(1);
+    expect(dueAt5k[0]).toMatchObject({ chatTarget: "chat-a", messageId: 10 });
+
+    // removing a row drops it from later sweeps; the other remains until its time
+    await s.removeDeletion(dueAt5k[0]!.id);
+    expect(await s.dueDeletions(5_000)).toHaveLength(0);
+    expect(await s.dueDeletions(9_000)).toHaveLength(1);
+  });
+
   it("persists meta values with upsert semantics", async () => {
     const s = new SqliteStorage(":memory:");
     await s.init();

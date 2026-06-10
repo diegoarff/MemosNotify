@@ -20,6 +20,9 @@ schedule:
   checkInterval: "*/15 * * * *"
   timezone: America/New_York # IANA tz for digest time, snooze_until, absolute dates & quiet hours
   renudge: 1d # nag if a one-shot is untouched; "off" = single shot
+  # Erase a handled message from the chat this long after you act on it; "off" = keep it.
+  # Max 24h (e.g. 90m, 12h, 1d)
+  deleteHandledAfter: "1d"
   digest:
     enabled: false # if true, batch due reminders into one message
     at: "08:00" # delivery time for the digest

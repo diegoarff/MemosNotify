@@ -11,6 +11,15 @@ const Duration = z
   .regex(DURATION_RE, "use e.g. 30m, 12h, 3d, 2w, 1mo, 1y")
   .transform(parseDuration);
 
+// A duration capped at 24h. Telegram only lets a bot delete a message for 48h after it was *sent*,
+// so a cleanup window longer than ~1 day would routinely land outside that limit and silently fail;
+// reject it at load instead. Calendar units (mo/y) are always > 1d, so they fail here too.
+const ONE_DAY_MS = 86_400_000;
+const DurationMax1d = Duration.refine(
+  (d) => d.kind === "fixed" && d.ms <= ONE_DAY_MS,
+  "must be at most 24h (e.g. 0s, 90m, 12h, 1d); Telegram can't delete messages older than 48h",
+);
+
 // Chat ids are often written unquoted in YAML, arriving as numbers; normalize to string.
 const ChatId = z.union([z.string(), z.number()]).transform(String);
 
@@ -85,6 +94,10 @@ const ScheduleConfig = z
     // IANA timezone for all date math: digest delivery, snooze_until, absolute dates, quiet hours.
     timezone: z.string().default("UTC"),
     renudge: z.union([z.literal("off"), Duration]).default("off"), // "off" = single shot
+    // Delete a handled message from the chat this long after it was acted on; "off" = keep it.
+    // Capped at 24h (see DurationMax1d). Best-effort even within the cap: a reminder acted on long
+    // after delivery can still exceed Telegram's 48h-from-send deletion limit and simply stay.
+    deleteHandledAfter: z.union([z.literal("off"), DurationMax1d]).default("off"),
     digest: z
       .object({
         enabled: z.boolean().default(false),

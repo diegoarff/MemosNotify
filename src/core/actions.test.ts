@@ -19,6 +19,9 @@ function harness(reminder: Reminder) {
     setStatus: async (_id, s) => {
       state.status = s;
     },
+    enqueueDeletion: async () => {},
+    dueDeletions: async () => [],
+    removeDeletion: async () => {},
     getMeta: async () => undefined,
     setMeta: async () => {},
   };

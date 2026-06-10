@@ -8,6 +8,9 @@ export interface ReminderView {
 
 export interface NotifierHandlers {
   onAction(reminderId: number, actionId: string): Promise<void>;
+  // Reports that a delivered message was acted on, so the app can schedule its later cleanup.
+  // The notifier just emits the event; retention policy lives in the app, not here.
+  onHandled?(target: string, messageId: number): Promise<void>;
 }
 
 export interface Notifier {
@@ -17,6 +20,8 @@ export interface Notifier {
   // reschedule only those and retry the rest (partial-failure safe).
   notify(target: string, batch: ReminderView[]): Promise<number[]>;
   resolveTarget(memoCreatorId?: number): string;
+  // Optional capability: remove a previously sent message (a one-way channel like ntfy can't).
+  deleteMessage?(target: string, messageId: number): Promise<void>;
 }
 
 // Optional capability (Telegram implements it; a one-way channel like ntfy wouldn't).

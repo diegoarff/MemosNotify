@@ -75,13 +75,20 @@ export class TelegramNotifier implements InteractiveNotifier {
         // Remove the keyboard so the resolved buttons can't be re-tapped (which would re-run
         // snooze/webhook/etc.); Telegram keeps the existing markup unless reply_markup is sent, so
         // editing the text alone is not enough — pass an empty keyboard.
-        const original = ctx.callbackQuery.message?.text;
-        if (original) {
+        const message = ctx.callbackQuery.message;
+        if (message?.text) {
           await ctx
-            .editMessageText(`${original}\n\n✓ handled`, { reply_markup: { inline_keyboard: [] } })
+            .editMessageText(`${message.text}\n\n✓ handled`, {
+              reply_markup: { inline_keyboard: [] },
+            })
             .catch(() => {});
         } else {
           await ctx.editMessageReplyMarkup().catch(() => {});
+        }
+        // Report the handled message so the app can schedule its eventual deletion. Best-effort:
+        // a missing chat/message (e.g. an inline-mode message) just means nothing to clean up.
+        if (message && ctx.chat) {
+          await handlers.onHandled?.(String(ctx.chat.id), message.message_id).catch(() => {});
         }
       } catch (err) {
         await ctx.answerCallbackQuery({ text: "Failed — check logs" });
@@ -161,6 +168,12 @@ export class TelegramNotifier implements InteractiveNotifier {
   resolveTarget(memoCreatorId?: number): string {
     const route = this.opts.chatRouting?.find((r) => r.memosCreatorId === memoCreatorId);
     return route?.chatId ?? this.opts.defaultChatId;
+  }
+
+  // Telegram only lets a bot delete messages sent < 48h ago; the caller treats a rejection here as
+  // "give up on this one" rather than retrying, so an out-of-window message simply stays.
+  async deleteMessage(target: string, messageId: number): Promise<void> {
+    await this.bot.api.deleteMessage(target, messageId);
   }
 
   async stop(): Promise<void> {

@@ -1,4 +1,8 @@
-# MemoNudge
+<p align="center">
+  <img src="assets/icon-256.png" width="128" alt="MemoNudge logo">
+</p>
+
+<h1 align="center">MemoNudge</h1>
 
 > Self-hosted reminder bot for [Memos](https://usememos.com). Tag a memo and get a
 > reminder with one-tap **snooze / clear / mute** actions — plus recurring reminders and

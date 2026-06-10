@@ -1,0 +1,49 @@
+notifier:
+  type: telegram
+  telegram:
+    botToken: ${TELEGRAM_BOT_TOKEN}
+    defaultChatId: ${TELEGRAM_CHAT_ID}
+    chatRouting: # optional: route by Memos user (shared instances)
+      - memosCreatorId: 1
+        chatId: 123456789
+
+triggers:
+  mode: opt-in # opt-in | all
+  tags: ["remind"] # memos containing #remind
+  inlineTiming: true # parse #remind(3d), #remind(2025-12-01), #remind(every 1w)
+  defaultDelay: 7d
+  tagDelays: # optional: tag → default delay overrides
+    remind1d: 1d
+    remind1w: 1w
+
+schedule:
+  checkInterval: "*/15 * * * *"
+  timezone: America/New_York # IANA tz for digest time, snooze_until, absolute dates & quiet hours
+  renudge: 1d # nag if a one-shot is untouched; "off" = single shot
+  digest:
+    enabled: false # if true, batch due reminders into one message
+    at: "08:00" # delivery time for the digest
+  quietHours:
+    enabled: true
+    # timezone: America/New_York # optional: overrides schedule.timezone for the quiet window only
+    from: "22:00"
+    to: "08:00"
+
+actions: # rendered as the button rows, in order
+  - { id: snz1w, label: "💤 +1 week", type: snooze, duration: 7d }
+  - { id: snz3w, label: "😴 +3 weeks", type: snooze, duration: 21d }
+  - { id: clear, label: "✅ Clear", type: clear, archiveMemo: false }
+  - { id: mute, label: "🔕 Ignore", type: ignore }
+  # opt-in extras:
+  - { id: open, label: "🔗 Open", type: open_url, url: "${MEMOS_BASE_URL}/m/{memoUid}" }
+
+memos:
+  baseUrl: ${MEMOS_BASE_URL} # for archive, deep links, backfill
+  token: ${MEMOS_TOKEN}
+
+storage:
+  driver: sqlite # sqlite | postgres
+  url: file:/app/data/memonudge.db # libSQL url; or postgres://… for the pg driver
+
+server:
+  port: 3000

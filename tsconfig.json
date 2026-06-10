@@ -1,0 +1,34 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file.
+  // This config is for type-checking + editor support; tsdown (oxc) does the build.
+  "compilerOptions": {
+    // Environment
+    "module": "nodenext",
+    "target": "esnext",
+    "lib": ["esnext"],
+    "types": ["node"],
+
+    // Type-checking only — tsdown emits the build artifacts.
+    "noEmit": true,
+
+    // Stricter type-checking
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // Recommended for ESM + fast tooling
+    // Import .ts files with explicit .ts extensions (build is done by tsdown, tsc is noEmit).
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts", "*.config.ts", "drizzle.config.ts"],
+  "exclude": ["node_modules", "dist"]
+}

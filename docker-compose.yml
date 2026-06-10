@@ -1,0 +1,44 @@
+# EXAMPLE compose: stands up Memos + MemoNudge together (the 2-minute try-it path).
+#
+# Already running Memos? You don't need the `memos` service below — use
+# docker-compose.memonudge.yml to run MemoNudge alone and connect it to your existing
+# instance via config (memos.baseUrl) + a webhook that reaches the MemoNudge container.
+#
+# Point Memos at the internal webhook in its settings:  http://memonudge:3000/memos-webhook
+# Nothing needs a public port: Telegram is long-polling (outbound) and the webhook hop
+# stays on the internal Docker network.
+
+services:
+  memos:
+    image: neosmemo/memos:stable # needs >= v0.27.0 for MEMOS_ALLOW_PRIVATE_WEBHOOKS
+    container_name: memos
+    restart: unless-stopped
+    environment:
+      # Memos >= 0.26.2 rejects webhook URLs that resolve to a private/reserved IP
+      # (SSRF protection). The internal webhook below (http://memonudge:3000) is a
+      # private Docker IP, so opt back in. Flag added in Memos v0.27.0.
+      - MEMOS_ALLOW_PRIVATE_WEBHOOKS=true
+    volumes:
+      - memos-data:/var/opt/memos
+    ports:
+      - "5230:5230" # Memos web UI (optional to expose)
+    networks: [memonudge]
+
+  memonudge:
+    image: ghcr.io/OWNER/memonudge:latest
+    # build: .   # uncomment to build the local source instead of pulling the image
+    container_name: memonudge
+    restart: unless-stopped
+    depends_on: [memos]
+    env_file: .env
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - memonudge-data:/app/data
+    networks: [memonudge]
+
+volumes:
+  memos-data:
+  memonudge-data:
+
+networks:
+  memonudge:

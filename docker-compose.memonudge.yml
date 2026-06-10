@@ -1,0 +1,50 @@
+# Bring-your-own-Memos: run ONLY MemoNudge against an existing Memos instance.
+# (The bundled docker-compose.yml — which also stands up Memos — is just the
+#  2-minute try-it example. If you already run Memos, use THIS file instead.)
+#
+# You need reachability in both directions:
+#   • MemoNudge → Memos : set MEMOS_BASE_URL (in .env) to your Memos URL.
+#   • Memos → MemoNudge : in Memos → Settings → Webhooks, add a URL that resolves
+#     to this container (see the two networking options below).
+#
+# Heads up: Memos >= 0.26.2 rejects webhook URLs that resolve to a private/reserved
+# IP (SSRF protection) — which is exactly what both options below produce. Run your
+# Memos (>= v0.27.0) with MEMOS_ALLOW_PRIVATE_WEBHOOKS=true to allow them, or expose
+# MemoNudge via a public tunnel and use that URL instead.
+#
+#   docker compose -f docker-compose.memonudge.yml up -d
+
+services:
+  memonudge:
+    image: ghcr.io/OWNER/memonudge:latest
+    # build: .   # uncomment to build from local source instead of pulling the image
+    container_name: memonudge
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - memonudge-data:/app/data
+
+    # ── Option A (recommended): join your existing Memos' Docker network, so the two
+    #    containers reach each other by name. Then:
+    #      MEMOS_BASE_URL=http://memos:5230            (your Memos service/container name)
+    #      webhook URL    =http://memonudge:3000/memos-webhook
+    networks: [memos-net]
+
+    # ── Option B: don't share a network — publish the webhook port and use host-reachable
+    #    URLs instead. Uncomment the ports below, drop the `networks:` key above, and set:
+    #      MEMOS_BASE_URL=http://<host-ip>:5230
+    #      webhook URL    =http://<host-ip>:3000/memos-webhook
+    # ports:
+    #   - "3000:3000"
+
+volumes:
+  memonudge-data:
+
+# The external network your existing Memos is already on. Find it with `docker network ls`
+# (a compose project named "memos" usually creates "memos_default"). Delete this block if
+# you use Option B above.
+networks:
+  memos-net:
+    external: true
+    name: memos_default

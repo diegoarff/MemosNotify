@@ -1,0 +1,30 @@
+version: 2
+updates:
+  # npm / pnpm dependencies (package.json + pnpm-lock.yaml)
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      # One PR per week for routine minor/patch bumps, keeping noise down.
+      npm-minor-patch:
+        update-types: ["minor", "patch"]
+    labels: ["dependencies"]
+
+  # GitHub Actions used by the CI and release workflows
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ["*"]
+    labels: ["dependencies", "ci"]
+
+  # Base image in the Dockerfile (node:24-slim)
+  - package-ecosystem: docker
+    directory: "/"
+    schedule:
+      interval: weekly
+    labels: ["dependencies", "docker"]

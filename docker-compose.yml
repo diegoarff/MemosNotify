@@ -12,7 +12,7 @@
 
 services:
   memonudge:
-    image: ghcr.io/OWNER/memonudge:latest
+    image: ghcr.io/diegoarff/memonudge:latest
     # build: .   # uncomment to build from local source instead of pulling the image
     container_name: memonudge
     restart: unless-stopped

@@ -96,7 +96,7 @@ reach each other on the network.
 6. **Verify** by messaging your bot `/test`; it replies with the chat id it sees. Then
    create a memo containing `#remind(1m)` and wait a minute.
 
-> The compose file pulls `ghcr.io/OWNER/memonudge:latest`. To build from local source
+> The compose file pulls `ghcr.io/diegoarff/memonudge:latest`. To build from local source
 > instead, uncomment `build: .` under the `memonudge` service.
 
 ### Deploy on Coolify
@@ -106,7 +106,7 @@ from the environment (`${VAR}` interpolation). On [Coolify](https://coolify.io) 
 those two halves separately.
 
 1. **New Resource → Docker Image**, pointing at the published image
-   (`ghcr.io/OWNER/memonudge:latest`).
+   (`ghcr.io/diegoarff/memonudge:latest`).
 
 2. **Environment Variables:** add the secrets the config references:
 

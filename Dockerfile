@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # --- build stage ---------------------------------------------------------
-FROM node:24-slim AS build
+FROM node:26-slim AS build
 WORKDIR /app
 RUN corepack enable
 COPY package.json pnpm-lock.yaml ./
@@ -10,7 +10,7 @@ COPY . .
 RUN pnpm build && pnpm prune --prod
 
 # --- runtime stage -------------------------------------------------------
-FROM node:24-slim AS runtime
+FROM node:26-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 # pruned prod dependencies + bundled app + migrations (applied at startup)

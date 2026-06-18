@@ -193,6 +193,38 @@ sections:
 **Durations** are `<n><unit>` where unit is `s`, `m`, `h`, `d`, `w` (exact) or `mo`, `y`
 (calendar-aware).
 
+### Real memo examples
+
+##### No timing: uses defaultDelay (or a matching tagDelays entry)
+
+- Renew the car insurance #remind
+
+##### One-shot delay from when the memo is created
+
+- Reply to the landlord #remind(45s)
+- Take the cake out of the oven #remind(30m)
+- Move the laundry to the dryer #remind(2h)
+- Submit the expense report #remind(3d)
+- Cancel the free trial #remind(2w)
+- Schedule the dentist #remind(1mo)
+- Renew the domain #remind(1y)
+
+##### Recurring: repeats on the cadence until you clear or ignore it
+
+- Water the plants #remind(every 3d)
+- Weekly review #remind(every 1w)
+- Pay rent #remind(every 1mo)
+- Back up the NAS #remind(every 1y)
+
+##### Absolute date (defaults to 09:00 in your configured timezone)
+
+- Mom's birthday #remind(2026-09-12)
+
+##### Absolute date and time (24h clock; space or T separator both work)
+
+- Standup with the team #remind(2026-12-01 09:30)
+- Catch the flight #remind(2026-12-01T06:15)
+
 ### `schedule`
 
 | Key                  | Default        | Notes                                                                                                                       |

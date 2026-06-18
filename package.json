@@ -1,7 +1,7 @@
 {
   "name": "memonudge",
   "version": "0.1.0",
-  "description": "Self-hosted reminder bot for Memos — config-driven triggers, actions, notifiers, and storage.",
+  "description": "Self-hosted reminder bot for Memos: config-driven triggers, actions, notifiers, and storage.",
   "keywords": [],
   "license": "MIT",
   "author": "",
@@ -20,28 +20,28 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hono/node-server": "^2.0.4",
+    "@hono/node-server": "^2.0.5",
     "@hono/zod-validator": "^0.8.0",
-    "@libsql/client": "^0.17.3",
+    "@libsql/client": "^0.17.4",
     "croner": "^10.0.1",
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
-    "grammy": "^1.43.0",
-    "hono": "^4.12.23",
+    "grammy": "^1.44.0",
+    "hono": "^4.12.26",
     "yaml": "^2.9.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/node": "^25.9.2",
+    "@types/node": "^25.9.3",
     "drizzle-kit": "^0.31.10",
-    "oxfmt": "^0.54.0",
-    "oxlint": "^1.69.0",
-    "tsdown": "^0.22.2",
+    "oxfmt": "^0.55.0",
+    "oxlint": "^1.70.0",
+    "tsdown": "^0.22.3",
     "typescript": "^6.0.3",
     "unrun": "^0.3.1",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.9"
   },
   "engines": {
     "node": ">=22"

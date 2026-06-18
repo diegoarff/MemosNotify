@@ -1,44 +1,43 @@
-# EXAMPLE compose: stands up Memos + MemoNudge together (the 2-minute try-it path).
+# Example compose: runs MemoNudge against your existing Memos instance.
 #
-# Already running Memos? You don't need the `memos` service below — use
-# docker-compose.memonudge.yml to run MemoNudge alone and connect it to your existing
-# instance via config (memos.baseUrl) + a webhook that reaches the MemoNudge container.
+# MemoNudge talks to Memos two ways, and each just needs network reachability:
+#   • MemoNudge → Memos : it calls the Memos API at `memos.baseUrl` (for complete/archive
+#     and deep links). Optional, only if you use those actions.
+#   • Memos → MemoNudge : Memos POSTs to MemoNudge's webhook on port 3000. Always needed.
 #
-# Point Memos at the internal webhook in its settings:  http://memonudge:3000/memos-webhook
-# Nothing needs a public port: Telegram is long-polling (outbound) and the webhook hop
-# stays on the internal Docker network.
+#   docker compose up -d
+#
+# Then in Memos → Settings → Webhooks add a URL that reaches this container, ending in
+# /memos-webhook (see the two options below).
 
 services:
-  memos:
-    image: neosmemo/memos:stable # needs >= v0.27.0 for MEMOS_ALLOW_PRIVATE_WEBHOOKS
-    container_name: memos
-    restart: unless-stopped
-    environment:
-      # Memos >= 0.26.2 rejects webhook URLs that resolve to a private/reserved IP
-      # (SSRF protection). The internal webhook below (http://memonudge:3000) is a
-      # private Docker IP, so opt back in. Flag added in Memos v0.27.0.
-      - MEMOS_ALLOW_PRIVATE_WEBHOOKS=true
-    volumes:
-      - memos-data:/var/opt/memos
-    ports:
-      - "5230:5230" # Memos web UI (optional to expose)
-    networks: [memonudge]
-
   memonudge:
     image: ghcr.io/OWNER/memonudge:latest
-    # build: .   # uncomment to build the local source instead of pulling the image
+    # build: .   # uncomment to build from local source instead of pulling the image
     container_name: memonudge
     restart: unless-stopped
-    depends_on: [memos]
     env_file: .env
     volumes:
       - ./config.yaml:/app/config.yaml:ro
       - memonudge-data:/app/data
-    networks: [memonudge]
+
+    # ── Option A (simplest): publish the webhook port and use host-reachable URLs. Works no
+    #    matter how your Memos runs. Then set:
+    #      memos.baseUrl (config.yaml) = http://<host-ip>:5230
+    #      webhook URL (in Memos)      = http://<host-ip>:3000/memos-webhook
+    ports:
+      - "3000:3000"
+
+    # ── Option B: join your existing Memos' Docker network so the two reach each other by
+    #    name. Comment out `ports:` above, uncomment below, and set:
+    #      memos.baseUrl (config.yaml) = http://memos:5230               (your Memos container name)
+    #      webhook URL (in Memos)      = http://memonudge:3000/memos-webhook
+    # networks: [memos-net]
 
 volumes:
-  memos-data:
   memonudge-data:
-
-networks:
-  memonudge:
+# Uncomment together with Option B.
+# networks:
+#   memos-net:
+#     external: true
+#     name: memos_default

@@ -3,7 +3,7 @@
 # --- build stage ---------------------------------------------------------
 FROM node:26-slim AS build
 WORKDIR /app
-RUN corepack enable
+RUN npm install -g corepack@latest && corepack enable
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY . .

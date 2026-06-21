@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/icon-256.png" width="128" alt="MemoNudge logo">
+  <img src="assets/icon-256.png" width="128" alt="MemosNotify logo">
 </p>
 
-<h1 align="center">MemoNudge</h1>
+<h1 align="center">MemosNotify</h1>
 
 > Self-hosted reminder bot for [Memos](https://usememos.com). Tag a memo and get a
 > reminder with one-tap **snooze / clear / mute** actions, plus recurring reminders and
@@ -15,9 +15,9 @@
 ## Why
 
 You jot something into Memos (_"renew passport #remind(3w)"_) and forget about it.
-MemoNudge watches for created memos, schedules a reminder, and delivers it to Telegram
+MemosNotify watches for created memos, schedules a reminder, and delivers it to Telegram
 with buttons to snooze, clear, ignore, or complete it. No public ingress required:
-Telegram runs over long polling (outbound only) and the Memos → MemoNudge webhook hop
+Telegram runs over long polling (outbound only) and the Memos → MemosNotify webhook hop
 stays on your internal Docker network.
 
 ## Features
@@ -56,9 +56,9 @@ Core owns all the semantics (scheduling, recurrence, action execution). Notifier
 
 ## Quick start (Docker Compose)
 
-MemoNudge runs as a single container alongside your **existing** Memos instance. It talks
+MemosNotify runs as a single container alongside your **existing** Memos instance. It talks
 to Memos two ways: it calls the Memos API (`memos.baseUrl`, for complete/archive and deep
-links), and Memos calls MemoNudge's webhook. The only requirement is that the two can
+links), and Memos calls MemosNotify's webhook. The only requirement is that the two can
 reach each other on the network.
 
 1. **Get a Telegram bot token** from [@BotFather](https://t.me/BotFather) and your chat id
@@ -83,30 +83,30 @@ reach each other on the network.
    ```
 
 5. **Point Memos at the webhook.** In Memos → _Settings → Webhooks_, add a URL that reaches
-   the MemoNudge container, ending in `/memos-webhook`, e.g.
+   the MemosNotify container, ending in `/memos-webhook`, e.g.
    `http://<host-ip>:3000/memos-webhook`. The [`docker-compose.yml`](./docker-compose.yml)
    documents the two reachability options (publish the port, or join your Memos' Docker
    network) inline.
 
    > **Memos ≥ 0.26.2** blocks webhook URLs that resolve to a private/reserved IP
    > (SSRF protection), and a host/internal address is one. Run your Memos (**≥ v0.27.0**)
-   > with `MEMOS_ALLOW_PRIVATE_WEBHOOKS=true`, or expose MemoNudge through a public tunnel
+   > with `MEMOS_ALLOW_PRIVATE_WEBHOOKS=true`, or expose MemosNotify through a public tunnel
    > and use that URL instead.
 
 6. **Verify** by messaging your bot `/test`; it replies with the chat id it sees. Then
    create a memo containing `#remind(1m)` and wait a minute.
 
-> The compose file pulls `ghcr.io/diegoarff/memonudge:latest`. To build from local source
-> instead, uncomment `build: .` under the `memonudge` service.
+> The compose file pulls `ghcr.io/diegoarff/memosnotify:latest`. To build from local source
+> instead, uncomment `build: .` under the `memosnotify` service.
 
 ### Deploy on Coolify
 
-MemoNudge loads its settings from a `config.yaml` **file**, but the secrets inside it come
+MemosNotify loads its settings from a `config.yaml` **file**, but the secrets inside it come
 from the environment (`${VAR}` interpolation). On [Coolify](https://coolify.io) you provide
 those two halves separately.
 
 1. **New Resource → Docker Image**, pointing at the published image
-   (`ghcr.io/diegoarff/memonudge:latest`).
+   (`ghcr.io/diegoarff/memosnotify:latest`).
 
 2. **Environment Variables:** add the secrets the config references:
 
@@ -140,7 +140,7 @@ those two halves separately.
      token: ${MEMOS_TOKEN}
    storage:
      driver: sqlite
-     url: file:/app/data/memonudge.db
+     url: file:/app/data/memosnotify.db
    ```
 
    Edit it in the UI and redeploy to change config. (Prefer file-based secrets? Coolify can
@@ -152,10 +152,10 @@ those two halves separately.
    container).
 
 5. **Keep the webhook internal.** The `/memos-webhook` endpoint is **unauthenticated**, so
-   don't give MemoNudge a public domain or expose port `3000`. Put it on the **same network
+   don't give MemosNotify a public domain or expose port `3000`. Put it on the **same network
    as your Memos** (same Coolify project, or attach to Memos' network) so they resolve each
    other by name, then in Memos → _Settings → Webhooks_ add
-   `http://memonudge:3000/memos-webhook` and set `MEMOS_ALLOW_PRIVATE_WEBHOOKS=true` on the
+   `http://memosnotify:3000/memos-webhook` and set `MEMOS_ALLOW_PRIVATE_WEBHOOKS=true` on the
    Memos service (≥ v0.27.0).
 
    > If your Memos lives on a **different** host, the webhook can't stay purely internal.
@@ -167,7 +167,7 @@ those two halves separately.
 ## Configuration
 
 A single `config.yaml` (the loader also accepts `.json`, chosen by file extension).
-Override the path with `MEMONUDGE_CONFIG`. Secrets are interpolated from the environment
+Override the path with `MEMOSNOTIFY_CONFIG`. Secrets are interpolated from the environment
 as `${VAR}` **before** validation; `${VAR}` also resolves from a file when `VAR_FILE` is
 set (the autobrr `_FILE` convention).
 
@@ -259,7 +259,7 @@ Template variables: `{reminderId}`, `{memoId}`, `{memoUid}`, `{memoName}`.
   creator id for shared instances).
 - `memos`: `baseUrl` + `token`; required for archive/complete and deep links.
 - `storage`: `driver` (`sqlite`) and `url` (a libSQL url such as
-  `file:/app/data/memonudge.db`).
+  `file:/app/data/memosnotify.db`).
 - `server.port`: webhook listen port (default `3000`).
 
 ---

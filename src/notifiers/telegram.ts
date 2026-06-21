@@ -110,7 +110,7 @@ export class TelegramNotifier implements InteractiveNotifier {
     });
 
     this.bot.command("test", async (ctx) => {
-      await ctx.reply(`✅ MemoNudge connected.\nThis chat id is: ${ctx.chat.id}`);
+      await ctx.reply(`✅ MemosNotify connected.\nThis chat id is: ${ctx.chat.id}`);
       // Fire a sample reminder so the user sees a real nudge + its buttons.
       const sample = this.sampleView?.();
       if (sample) {

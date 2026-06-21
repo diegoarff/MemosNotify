@@ -33,7 +33,7 @@ function interpolateEnv(raw: string): string {
 }
 
 /** Read config.yaml|json, interpolate env, validate with Zod, fail fast with a readable error. */
-export function loadConfig(path = process.env.MEMONUDGE_CONFIG ?? "config.yaml"): Config {
+export function loadConfig(path = process.env.MEMOSNOTIFY_CONFIG ?? "config.yaml"): Config {
   const abs = resolve(path);
   const raw = interpolateEnv(readFileSync(abs, "utf8"));
   const ext = extname(abs).toLowerCase();

@@ -94,7 +94,7 @@ async function main(): Promise<void> {
     },
   });
   const server = startServer(app, config.server.port);
-  console.log(`memonudge: listening on :${config.server.port}`);
+  console.log(`memosnotify: listening on :${config.server.port}`);
 
   const scheduler = startScheduler(config, storage, notifier);
 
@@ -102,7 +102,7 @@ async function main(): Promise<void> {
   const shutdown = (signal: string): void => {
     if (shuttingDown) return;
     shuttingDown = true;
-    console.log(`memonudge: received ${signal}, shutting down…`);
+    console.log(`memosnotify: received ${signal}, shutting down…`);
     scheduler.stop();
     void notifier.stop();
     server.close(() => process.exit(0));

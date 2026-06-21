@@ -1,5 +1,5 @@
 {
-  "name": "memonudge",
+  "name": "memosnotify",
   "version": "0.1.1",
   "description": "Self-hosted reminder bot for Memos: config-driven triggers, actions, notifiers, and storage.",
   "keywords": [],

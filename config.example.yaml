@@ -46,7 +46,7 @@ memos:
 
 storage:
   driver: sqlite # sqlite | postgres
-  url: file:/app/data/memonudge.db # libSQL url; or postgres://… for the pg driver
+  url: file:/app/data/memosnotify.db # libSQL url; or postgres://… for the pg driver
 
 server:
   port: 3000

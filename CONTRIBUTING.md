@@ -1,6 +1,6 @@
-# Contributing to MemoNudge
+# Contributing to MemosNotify
 
-Thanks for your interest! MemoNudge is a small, focused codebase — contributions that keep
+Thanks for your interest! MemosNotify is a small, focused codebase — contributions that keep
 it that way are very welcome.
 
 ## Setup

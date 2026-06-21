@@ -1,9 +1,9 @@
-# Example compose: runs MemoNudge against your existing Memos instance.
+# Example compose: runs MemosNotify against your existing Memos instance.
 #
-# MemoNudge talks to Memos two ways, and each just needs network reachability:
-#   • MemoNudge → Memos : it calls the Memos API at `memos.baseUrl` (for complete/archive
+# MemosNotify talks to Memos two ways, and each just needs network reachability:
+#   • MemosNotify → Memos : it calls the Memos API at `memos.baseUrl` (for complete/archive
 #     and deep links). Optional, only if you use those actions.
-#   • Memos → MemoNudge : Memos POSTs to MemoNudge's webhook on port 3000. Always needed.
+#   • Memos → MemosNotify : Memos POSTs to MemosNotify's webhook on port 3000. Always needed.
 #
 #   docker compose up -d
 #
@@ -11,15 +11,15 @@
 # /memos-webhook (see the two options below).
 
 services:
-  memonudge:
-    image: ghcr.io/diegoarff/memonudge:latest
+  memosnotify:
+    image: ghcr.io/diegoarff/memosnotify:latest
     # build: .   # uncomment to build from local source instead of pulling the image
-    container_name: memonudge
+    container_name: memosnotify
     restart: unless-stopped
     env_file: .env
     volumes:
       - ./config.yaml:/app/config.yaml:ro
-      - memonudge-data:/app/data
+      - memosnotify-data:/app/data
 
     # ── Option A (simplest): publish the webhook port and use host-reachable URLs. Works no
     #    matter how your Memos runs. Then set:
@@ -31,11 +31,11 @@ services:
     # ── Option B: join your existing Memos' Docker network so the two reach each other by
     #    name. Comment out `ports:` above, uncomment below, and set:
     #      memos.baseUrl (config.yaml) = http://memos:5230               (your Memos container name)
-    #      webhook URL (in Memos)      = http://memonudge:3000/memos-webhook
+    #      webhook URL (in Memos)      = http://memosnotify:3000/memos-webhook
     # networks: [memos-net]
 
 volumes:
-  memonudge-data:
+  memosnotify-data:
 # Uncomment together with Option B.
 # networks:
 #   memos-net:

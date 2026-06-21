@@ -1,6 +1,6 @@
 {
   "name": "memosnotify",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Self-hosted reminder bot for Memos: config-driven triggers, actions, notifiers, and storage.",
   "keywords": [],
   "license": "MIT",

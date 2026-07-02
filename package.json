@@ -34,7 +34,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.1.0",
     "drizzle-kit": "^0.31.10",
     "oxfmt": "^0.55.0",
     "oxlint": "^1.70.0",
